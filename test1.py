@@ -5,6 +5,22 @@ import re
 import urllib
 from datetime import datetime
 
+
+
+def playfunc(func):
+    def inner(school):
+        if re.match(r'[A-Z]{1}[a-z]{1,11}[\s]?[a-zA-Z]{0,10}$', school):
+            school = "Good " + school
+        else:
+            school = "low"
+        func(school)
+    return inner
+# func1 = playfunc(func1)
+
+@playfunc
+def func1(school):
+    print("The school is %s university!" % school)
+
 if __name__ == "__main__":
     print os.name
     print os.environ
@@ -20,3 +36,4 @@ if __name__ == "__main__":
         print("ok")
     else:
         print("failed")
+    func1("Shanghai ")
