@@ -18,7 +18,7 @@ def getwebpage(website, **args):
         print('Status:', f.status, f.reason)
         for k, v in f.getheaders():
             print('%s: %s' % (k, v))
-        print('*****************************')
+        print('******************************')
         raw_data = data.decode('utf-8')
         print('Data:', raw_data)
         print(json.dumps(raw_data,indent=2))
