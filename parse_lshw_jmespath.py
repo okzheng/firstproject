@@ -14,8 +14,8 @@ def parse_lshw():
         with jsonfile.open() as file_obj:
             data_file = json.load(file_obj)
             # data_file = file_obj.read()
-            print(type(file_obj))
-            print(type(data_file))
+            # print(type(file_obj))
+            # print(type(data_file))
 
             hostname = jmespath.search('id', data_file)
             uuid = jmespath.search('configuration.uuid', data_file)
@@ -23,11 +23,42 @@ def parse_lshw():
             vendor = jmespath.search('vendor', data_file)
             serial = jmespath.search('serial', data_file)
             print(hostname, uuid, product, vendor, serial)
+            parse_description(data_file, 'BIOS', 'CPU')
+            parse_power(data_file)
+            parse_memory(data_file)
 
-
-def parse_description(dict,*items):
+def parse_description(dict_data,*items):
     for item in items:
-        item = jmespath.search("children[children[?description=="+item+"]]", dict)
+        item = jmespath.search("children[0].children[?description=='"+item+"'].version | [0]", dict_data)
+        # item = jmespath.search("children[0].children[?contains(description,'"+item+"') == 'true'].version", dict_data)
+
+        print(item)
+
+
+def parse_memory(dict_data):
+    memory = jmespath.search("children[0].children[?id=='memory'].size | [0]", dict_data)
+    if memory:
+        print("memory is :" , memory /1024/1024/1024)
+        return memory
+    # memory_slot = jmespath.search("length(children[0].children[?id=='memory' || id=='memory:0' || id=='memory:1'].children[].size )", dict_data)
+    memory_sum = jmespath.search("sum(children[0].children[?id=='memory' || id=='memory:0' || id=='memory:1'].children[].size)", dict_data)
+    memory = memory_sum/1024/1024/1024
+    print(memory)
+    return memory
+
+
+
+
+def parse_power(dict_data):
+    power = jmespath.search("children[?class=='power'].capacity | [0]", dict_data)
+    print(power)
+
+def parse_netcard(dict_data):
+    pass
+
+def parse_ip(dict,ip):
+    pass
+
 
 
 def parse_hardwareInfo(*items):
@@ -186,6 +217,6 @@ def testa():
 if __name__ == "__main__":
     # parse_hardwareInfo('hostname','serial','uuid','CPU','Memory','vendor','product')
     # generateCSV("north-csvinfo.csv",parse_hardwareInfo('ip','serial','hostname','BIOS','uuid','CPU','Memory','vendor','product','power'))
-    # parse_lshw()
-    # print("abc")
-    print(jmespath.search("machines[*].x[?name=='a'].state",testa()))
+    parse_lshw()
+    print("abc")
+    # print(jmespath.search("machines[*].x[?name=='a'].state",testa()))
